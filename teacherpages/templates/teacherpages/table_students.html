@@ -1,0 +1,389 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Группа {{ subgroup.subgroup_name }}</title>
+    <link rel="stylesheet" href="{% static 'adminpages/css/table_students.css' %}">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>  
+    
+    <style>
+        .table-bordered {
+            border-collapse: collapse;
+            border: 2px solid black;
+            border-top: 2px solid black;
+        }
+        .table-bordered td,
+        .table-bordered th,
+        .table-bordered tr {
+            border-right: 2px solid black;
+            border-top: 2px solid black;
+        }
+
+        .border-bottom {
+            border-bottom: 2px solid black;
+            border-top: 2px solid black;
+        }
+
+        .table-bordered td:nth-child(2n) {
+            border-top: 2px solid black;
+            border-right: 0px solid black;
+        }
+
+        .container.rounded {
+            border: 2px solid #8B2222;
+            background-color: #FBE4C5;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .container.rounded-main {
+            border: 2px solid #8B2222;
+            padding: 15px;
+            background-color: #FBE4C5;
+        }
+
+        #searchResultsContainer {
+            max-height: 30px;
+            overflow-y: auto;
+        }
+
+        .btn-primary {
+            background-color: #8B2222 !important;
+            border-color: #8B2222 !important;
+        }
+
+        .btn-primary:not(:disabled):not(.disabled):active,
+        .btn-primary:not(:disabled):not(.disabled).active,
+        .show>.btn-primary.dropdown-toggle {
+            color: #ffffff !important;
+        }
+
+        .btn-primary:hover {
+            background-color: #A84242 !important;
+            border-color: #A84242 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="uniqueContainer" class="container rounded-main" style="max-width: 100%;">
+        <div class="row">
+            <div class="col-md-6 text-left"> 
+                <div class="row">
+                    <div class="col-md-2">
+                        <a href="{% url 'index_teacher' %}" class="btn btn-primary btn-lg" style="white-space: nowrap;">На главную</a>
+                    </div>
+                    <div class="col-md-2" style="margin-left: 180px;">
+                        <a href="{% url 'subgroups_select_teacher' subgroup.key_group.id_groups_table %}" class="btn btn-primary btn-lg" style="white-space: nowrap;">К списку групп</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div style="text-align: center;">
+        <img src="{% static 'adminpages/icons/chelgu-logo.png' %}" alt="logo" style="max-width: 130px; max-height: 130px; margin-top: -4%;">
+    </div>
+    
+    <div class="container" style="width: 100%; max-width: none; margin-top: 10px; max-height: 700px; overflow-y: auto;">
+        <table class="table table-bordered" style="width: 100%;">
+            <thead>
+                <tr class="border-bottom">
+                    <th rowspan="2" class="subgroup-header border-bottom">{{ subgroup.subgroup_name }}</th>
+    
+                    {% for week in weeks %}
+                        <th colspan="2" class="border-bottom">
+                            <div>{{week.week_name}}</div>
+                        </th>
+                    {% endfor %}
+                </tr>
+                <tr class="border-bottom">
+                    {% for month_info in month_data %}
+                        <th colspan="{{ month_info.month_span }}" class="month-header border-bottom">{{ month_info.month_name }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody id="dataTable">
+                <tr>
+                    <td>ФИО Студента</td>
+                    {% for week in weeks %}
+                        <td>По уважительной</td>
+                        <td>По неуважительной</td>
+                    {% endfor %}
+                </tr>
+                {% for data in attendance_data %}
+                <tr>
+                    <td style="white-space: nowrap;">{{ data.student.student_name }}</td>
+                    {% for week, att in data.attendance.items %}
+                        <td class="normal-border" data-respectfully="По уважительной" data-id-student="{{data.student.id_students_table}}" data-name-student="{{data.student.student_name}}" data-week="{{week}}">{{ att.attendance_respectfully|default_if_none:"" }}</td>
+                        <td class="normal-border" data-respectfully="По неуважительной" data-id-student="{{data.student.id_students_table}}" data-name-student="{{data.student.student_name}}" data-week="{{week}}">{{ att.attendance_disrespectfully|default_if_none:"" }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    
+    <div id="AnswerModal" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="AnswerModalTitle">Данные месяца</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        function handleCellClick() {
+            var tableCells = document.querySelectorAll('.table-bordered tbody tr:not(:first-of-type) td:not(:first-child)');
+
+
+            var weekHeaders = document.querySelectorAll('.table-bordered thead th:not(:first-child)');
+
+            tableCells.forEach(function (cell) {
+                cell.addEventListener('click', function () {
+                    document.querySelectorAll('.table-bordered tbody td').forEach(function (cell) {
+                        cell.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    var cellText = this.innerText;
+                    var weekIndex = Array.from(this.parentNode.children).indexOf(this) - 1;
+                    var weekHeader = weekHeaders[Math.trunc(weekIndex / 2)];
+                    var week = weekHeader.innerText;
+                    var studentName = this.getAttribute('data-name-student');
+                    var respectfullyInfo = this.getAttribute('data-respectfully');
+                    var comment = this.getAttribute('data-comment');
+                    document.getElementById('cellValue').value = cellText;
+                    document.getElementById('cellComment').value = comment;
+                    document.getElementById('modalTitle').innerText = studentName + ', ' + week + ': ' + respectfullyInfo;
+                    $('#cellModal').modal('show');
+                });
+            });
+        }
+
+        function handleAnswerModalMonths() {
+            var monthHeaders = document.querySelectorAll('.table-bordered thead th.month-header');
+
+            monthHeaders.forEach(function(header) {
+                header.addEventListener('click', function() {
+                    var monthName = header.innerText;
+                    var monthCol = parseInt(header.getAttribute('colspan'));
+                    var monthData = getMonthData(monthName, monthCol);
+                    var modal = document.getElementById('AnswerModal');
+
+                    var modalBody = modal.querySelector('.modal-body');
+                    modalBody.innerHTML = ''; 
+                    for (var studentName in monthData) {
+                        var studentData = monthData[studentName];
+                        var studentElement = document.createElement('div');
+                        studentElement.innerHTML = '<strong>' + studentName + '</strong>: По уважительной: ' + studentData.respectfully + ', По неуважительной: ' + studentData.disrespectfully + ', Сумма: ' + studentData.total;
+                        modalBody.appendChild(studentElement);
+                    }
+                    var modalTitle = modal.querySelector('.modal-title');
+                    modalTitle.innerText = monthName;
+                    applyDynamicModalStyles();
+                    $('#AnswerModal').modal('show');
+                });
+            });
+        }
+
+        function getMonthData(monthName, monthCol) {
+            var monthData = {
+            };
+
+            var monthHeaders = document.querySelectorAll('.table-bordered thead th.month-header');
+            var startIndex = 0;
+            for (var i = 0; i < monthHeaders.length; i++) {
+                if (monthHeaders[i].innerText === monthName) {
+                    break;
+                }
+                if (monthHeaders[i].getAttribute('colspan')) {
+                    startIndex += parseInt(monthHeaders[i].getAttribute('colspan'), 10);
+                }
+            }
+    
+            
+            var tableRows = document.querySelectorAll('.table-bordered tbody tr:not(:first-of-type)');
+
+
+            tableRows.forEach(function(row) {
+                var studentName = row.cells[0].innerText;
+                monthData[studentName] = monthData[studentName] || { "respectfully": 0, "disrespectfully": 0, "total": 0 };
+                var cells = row.cells;
+                var EndIndex = startIndex + monthCol + 1;
+                for (var i = startIndex + 1; i < EndIndex; i ++) {
+                        var respectfullyType = cells[i].getAttribute('data-respectfully');
+                        var respectfullyValue = parseInt(cells[i].innerText || 0);
+                        
+                        if (respectfullyType === "По уважительной") {
+                            monthData[studentName]["respectfully"] += respectfullyValue;
+                        } else if (respectfullyType === "По неуважительной") {
+                            monthData[studentName]["disrespectfully"] += respectfullyValue;
+                        }
+                        monthData[studentName]["total"] += respectfullyValue;
+                }
+            });
+
+            return monthData;
+        }
+
+        function handleAnswerModalStudents() {
+            var studentNames = document.querySelectorAll('.table-bordered tbody tr:not(:first-of-type) td:first-child');
+            studentNames.forEach(function(nameCell) {
+                nameCell.addEventListener('click', function() {
+                    var studentName = nameCell.innerText;
+                    var studentData = getStudentData(studentName);
+                    var modal = document.getElementById('AnswerModal');
+                    var modalBody = modal.querySelector('.modal-body');
+                    modalBody.innerHTML = '';
+                    for (var monthName in studentData) {
+                        var monthData = studentData[monthName];
+                        var studentElement = document.createElement('div');
+                        studentElement.innerHTML = '<strong>' + monthName + '</strong>: По уважительной: ' + monthData.respectfully + ', По неуважительной: ' + monthData.disrespectfully + ', Сумма: ' + monthData.total;
+                        modalBody.appendChild(studentElement);
+                    }
+                    var modalTitle = modal.querySelector('.modal-title');
+                    modalTitle.innerText = studentName;
+                    applyDynamicModalStyles();
+                    $('#AnswerModal').modal('show');
+                });
+            });
+        }
+
+        function getStudentData(studentName) {
+            var studentData = {};
+
+            var tableRows = document.querySelectorAll('.table-bordered tbody tr');
+            
+            tableRows.forEach(function(row) {
+                var name = row.cells[0].innerText;
+                if (name === studentName) {
+                    var cells = row.cells;
+
+                    var monthHeaders = document.querySelectorAll('.table-bordered thead th.month-header');
+                    monthHeaders.forEach(function(header) {
+                        var monthName = header.innerText;
+                        var monthCol = parseInt(header.getAttribute('colspan'));
+                        var startIndex = 0;
+                        for (var i = 0; i < monthHeaders.length; i++) {
+                            if (monthHeaders[i].innerText === monthName) {
+                                break;
+                            }
+                            if (monthHeaders[i].getAttribute('colspan')) {
+                                startIndex += parseInt(monthHeaders[i].getAttribute('colspan'), 10);
+                            }
+                        }
+                        var endIndex = startIndex + monthCol;
+
+                        for (var i = startIndex + 1; i <= endIndex; i ++) {
+                            var weekMonth = cells[i].getAttribute('data-week');
+                            var respectfullyType = cells[i].getAttribute('data-respectfully');
+                            var respectfullyValue = parseInt(cells[i].innerText || 0);
+
+                            if (studentData[monthName] === undefined) {
+                                studentData[monthName] = { "respectfully": 0, "disrespectfully": 0, "total": 0 };
+                            }
+
+                            if (respectfullyType === "По уважительной") {
+                                studentData[monthName]["respectfully"] += respectfullyValue;
+                            } else if (respectfullyType === "По неуважительной") {
+                                studentData[monthName]["disrespectfully"] += respectfullyValue;
+                            }
+                            studentData[monthName]["total"] += respectfullyValue;
+                        }
+                    });
+                }
+            });
+
+            return studentData;
+        }
+
+        function handleAnswerModalSubgroups() {
+            var subgroupHeaders = document.querySelectorAll('.subgroup-header');
+
+            subgroupHeaders.forEach(function(header) {
+                header.addEventListener('click', function() {
+                    var subgroupName = header.innerText;
+                    var subgroupData = getSubgroupData(subgroupName);
+                    var modal = document.getElementById('AnswerModal');
+                    var modalBody = modal.querySelector('.modal-body');
+                    modalBody.innerHTML = '';
+                    for (var studentName in subgroupData) {
+                        var studentData = subgroupData[studentName];
+                        var studentElement = document.createElement('div');
+                        studentElement.innerHTML = '<strong>' + studentName + '</strong>: По уважительной: ' + studentData.respectfully + ', По неуважительной: ' + studentData.disrespectfully + ', Сумма: ' + studentData.total;
+                        modalBody.appendChild(studentElement);
+                    }
+
+                    var modalTitle = modal.querySelector('.modal-title');
+                    modalTitle.innerText = subgroupName;
+                    
+                    applyDynamicModalStyles();
+                    $('#AnswerModal').modal('show');
+                });
+            });
+        }
+
+        function getSubgroupData(subgroupName) {
+            var subgroupData = {};
+
+            var tableRows = document.querySelectorAll('.table-bordered tbody tr:not(:first-of-type)');
+
+            tableRows.forEach(function(row) {
+                var cells = row.cells;
+                var studentName = cells[0].innerText;
+                for (var i = 1; i < cells.length; i++) {
+                    var respectfullyType = cells[i].getAttribute('data-respectfully');
+                    var respectfullyValue = parseInt(cells[i].innerText || 0);
+                    if (subgroupData[studentName] === undefined) {subgroupData[studentName] = { "respectfully": 0, "disrespectfully": 0, "total": 0 };}
+                    if (respectfullyType === "По уважительной") 
+                        {subgroupData[studentName]["respectfully"] += respectfullyValue;
+                            } else if (respectfullyType === "По неуважительной") {
+                                subgroupData[studentName]["disrespectfully"] += respectfullyValue;
+                            }
+                            subgroupData[studentName]["total"] += respectfullyValue;
+                }
+                
+            });
+            return subgroupData;
+        }
+
+        function applyDynamicModalStyles() {
+            var modalContent = document.querySelector('#AnswerModal .modal-content');
+            
+            var modalBodyDivs = document.querySelectorAll('#AnswerModal .modal-body div');
+            var tempElement = document.createElement('span');
+            tempElement.style.visibility = 'hidden';
+            tempElement.style.position = 'absolute';
+            document.body.appendChild(tempElement);
+            var maxWidth = 0;
+            modalBodyDivs.forEach(function(div) {
+                tempElement.innerText = div.innerText;
+                var textWidth = tempElement.getBoundingClientRect().width;
+                maxWidth = Math.max(maxWidth, textWidth) + 20;
+            });
+            document.body.removeChild(tempElement);
+            modalContent.style.width = (maxWidth + 20) + 'px';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            handleCellClick()
+            handleAnswerModalMonths()
+            handleAnswerModalStudents()
+            handleAnswerModalSubgroups()
+        });
+    </script>
+</body>
+</html>

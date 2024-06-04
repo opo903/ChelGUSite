@@ -1,0 +1,236 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>adminpages</title>
+    <link rel="stylesheet" href="{% static 'adminpages/css/startpage.css' %}">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .container.rounded {
+            border: 2px solid #8B2222;
+            background-color: #FBE4C5;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .container.rounded-main {
+            border: 2px solid #8B2222;
+            padding: 15px;
+            background-color: #FBE4C5;
+        }
+
+        #searchResultsContainer {
+            max-height: 30px;
+            overflow-y: auto;
+        }
+
+        .btn-primary {
+            background-color: #8B2222 !important;
+            border-color: #8B2222 !important;
+        }
+
+        .btn-primary:not(:disabled):not(.disabled):active,
+        .btn-primary:not(:disabled):not(.disabled).active,
+        .show>.btn-primary.dropdown-toggle {
+            color: #ffffff !important;
+        }
+
+        .btn-primary:hover {
+            background-color: #A84242 !important;
+            border-color: #A84242 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container rounded-main" style="max-width: 100%;">
+        <div class="row">
+            <div class="col-md-6 text-left">
+                <div class="row">
+                    <div class="col-md-2">
+                        <a href="{% url 'logout_admin' %}" class="btn btn-danger btn-lg">Выход</a>
+                    </div>
+                    <div class="col-md-2" style="margin-left: 20%;">
+                        <a href="{% url 'accounts_admin' %}" class="btn btn-primary btn-lg">Аккаунты</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'groups_admin' %}" class="btn btn-primary btn-lg">Направления</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 text-right">
+                <div class="row">
+                    <div class="col-md-2" style="margin-left: 12%;">
+                        <a href="{% url 'archive' %}" class="btn btn-primary btn-lg">Архив</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'archiving' %}" class="btn btn-primary btn-lg" style="white-space: nowrap;">Архивация данных</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'feedback' %}" class="btn btn-primary btn-lg" style="white-space: nowrap;">Сообщить об ошибке</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center;">
+        <img src="{% static 'adminpages/icons/chelgu-logo.png' %}" alt="logo" style="max-width: 130px; max-height: 130px; margin-top: -4%;">
+    </div>
+
+    <div class="container mt-5" style="text-align: center; max-width: 100%;">
+        <div class="row" >
+            <div class="col-md-6" style="margin-left: 5%;">
+                <div id="searchContainer" class="container rounded" style="width: 500px !important;">
+                    <h2 class="text-center">Поиск студентов</h2>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="studentName" placeholder="ФИО студента">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="number" class="form-control" id="absenceCount" placeholder="Количество пропусков">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" onclick="handleSearchButtonClick()">
+                        <img src="{% static 'adminpages/icons/search.svg' %}" alt="logo" style="max-width: 30px; max-height: 30px; margin-top: -4%;">Найти
+                    </button>
+                    <div class="mt-2" style="max-height: 250px; overflow-y: auto;">
+                        <table class="table" style="width: 100%; background-color: white">
+                            <thead>
+                                <tr>
+                                    <th>Группа</th>
+                                    <th>ФИО</th>
+                                    <th>Пропуски</th>
+                                </tr>
+                            </thead>
+                            <tbody id="searchResults">
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="col-md-1">
+                <div class="container rounded" style="width: 500px !important;">
+                    <h2 class="text-center">Список направлений</h2>
+                    <div class="list-group">
+                        {% for group in groups %}
+                            <div class="mb-2">
+                                <a href="{% url 'subgroups_select_admin' group.id_groups_table %}" class="list-group-item list-group-item-action" style="font-size: 25px; font-weight: bold;">{{ group.groups_name }}</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+
+    <script>
+        if ({{success}}) {
+            var newToast = document.createElement('div');
+            newToast.id = 'successToast';
+            newToast.classList.add('toast');
+            newToast.setAttribute('role', 'alert');
+            newToast.setAttribute('aria-live', 'assertive');
+            newToast.setAttribute('aria-atomic', 'true');
+            newToast.setAttribute('data-delay', '1000');
+            newToast.style.position = 'fixed';
+            newToast.style.bottom = '10px';
+            newToast.style.right = '10px';
+            newToast.innerHTML = `
+                <div class="toast-header">
+                    <strong class="mr-auto">Успешно!</strong>
+                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" onclick="this.parentElement.parentElement.remove()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="toast-body">
+                    <span id="toastMessage">Архивация прошла успешно.<br>Поздравляю с началом нового семестра!</span>
+                </div>
+            `;
+            document.body.appendChild(newToast);
+            newToast.classList.add('show');
+            setTimeout(function() {
+                newToast.remove();
+            }, 5000);
+        }
+
+        function handleSearchButtonClick() {
+            var studentName = document.getElementById("studentName").value;
+            var attendance = document.getElementById("absenceCount").value;
+
+            var errorMessage = document.getElementById('errorMessage');
+            if (attendance < 0) {
+                if (!errorMessage) {
+                    errorMessage = document.createElement('h2');
+                    errorMessage.id = 'errorMessage';
+                    errorMessage.className = 'text-center';
+                    errorMessage.innerText = 'Количество пропусков не может быть отрицательным!';
+                    
+                    var searchContainer = document.getElementById('searchContainer');
+                    searchContainer.insertBefore(errorMessage, searchContainer.firstChild);
+                }
+                return;
+            } else { if (errorMessage) {errorMessage.remove();} }
+
+            var searchResults = [];
+            var attendanceValue = attendance.trim() !== '' ? attendance : '0';
+            $.ajax({
+                type: "POST",
+                url: "search_students/",
+                data: {
+                    'SearchStudentName': studentName,
+                    'SearchAttendance': attendanceValue,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        searchResults = response.result
+                        populateSearchResults(searchResults);
+                    } else {
+                       
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+
+        function populateSearchResults(results) {
+            var tableBody = document.getElementById('searchResults');
+            tableBody.innerHTML = "";
+            results.forEach(function(student) {
+                var row = tableBody.insertRow();
+                var subgroupCell = row.insertCell(0);
+                var subgroupButton = document.createElement('button');
+                subgroupButton.className = 'btn btn-primary';
+                subgroupButton.textContent = student.subgroupName;
+                subgroupButton.style.whiteSpace = 'nowrap';
+                subgroupButton.addEventListener('click', function() {
+                    window.location.href = student.subgroupId;
+                });
+                subgroupCell.appendChild(subgroupButton);
+
+                var nameCell = row.insertCell(1);
+                nameCell.textContent = student.name;
+
+                var attendanceCell = row.insertCell(2);
+                attendanceCell.textContent = student.attendances;
+            });
+        }
+    </script>
+</body>
+</html>

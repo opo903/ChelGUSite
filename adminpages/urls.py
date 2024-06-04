@@ -1,0 +1,33 @@
+from django.urls import path, include
+from . import views
+urlpatterns = [
+    path('', views.index, name='index_admin'),
+    path('logout/', views.logout_view, name='logout_admin'),
+    path('accounts_admin/', views.accounts_admin, name='accounts_admin'),
+    path('feedback/', views.feedback, name='feedback'),
+    path('feedback/send_feedback/', views.send_feedback, name='send_feedback'),
+    path('groups_admin/', views.groups_admin, name='groups_admin'),
+    path('subgroups_admin/<int:key_group>/', views.subgroups_admin, name='subgroups_admin'),
+    path('search_students/', views.search_students, name='search_students'),
+    path('archive/', views.archive, name='archive'),
+    path('archive_subgroups/<str:year>/<str:semester>/', views.archive_subgroups, name='archive_subgroups'),
+    path('download_excel/<str:year>/<str:semester>/<str:subgroup>/', views.download_excel, name='download_excel'),
+    path('archiving/', views.archiving, name='archiving'),
+    path('subgroups_select/<int:key_group>/', views.subgroups_select, name='subgroups_select_admin'),
+    path('table_students/<int:key_subgroup>/', views.table_students, name='table_students_admin'),
+    path('table_students/<int:n>/add_lock/', views.add_lock, name='add_lock'),
+    path('table_students/<int:n>/save_table/', views.save_table, name='save_table'),
+    path('archiving/archivingPost/', views.archivingPost, name='archivingPost'),
+    path('groups_admin/addGroup/', views.addGroup, name='addGroup'),
+    path('groups_admin/delGroup/', views.delGroup, name='delGroup'),
+    path('groups_admin/saveGroup/', views.saveGroup, name='saveGroup'),
+    path('subgroups_admin/<int:n>/addSubGroup_admin/', views.addSubGroup_admin, name='addSubGroup_admin'),
+    path('subgroups_admin/<int:n>/delSubGroup/', views.delSubGroup, name='delSubGroup'),
+    path('subgroups_admin/<int:n>/saveSubGroup/', views.saveSubGroup, name='saveSubGroup'),
+
+    path('ajax/search_accounts/', views.ajax_search_accounts, name='ajax_search_accounts'),
+    path('ajax/delete_account/', views.ajax_delete_account, name='ajax_delete_account'),
+    path('ajax/save_account/', views.ajax_save_account, name='ajax_save_account'),
+    path('create_account/', views.create_account, name='create_account'),
+    path('ajax/load-subgroups/', views.load_subgroups, name='ajax_load_subgroups'),
+]

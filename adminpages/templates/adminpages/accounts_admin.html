@@ -1,0 +1,481 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>accounts</title>
+    <link rel="stylesheet" href="{% static 'adminpages/css/startpage.css' %}">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .container.rounded {
+            border: 2px solid #8B2222;
+            background-color: #FBE4C5;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .container.rounded-main {
+            border: 2px solid #8B2222;
+            padding: 15px;
+            background-color: #FBE4C5;
+        }
+
+        #searchResultsContainer {
+            max-height: 30px;
+            overflow-y: auto;
+        }
+
+        .btn-primary {
+            background-color: #8B2222 !important;
+            border-color: #8B2222 !important;
+        }
+
+        .btn-primary:not(:disabled):not(.disabled):active,
+        .btn-primary:not(:disabled):not(.disabled).active,
+        .show>.btn-primary.dropdown-toggle {
+            color: #ffffff !important;
+        }
+
+        .btn-primary:hover {
+            background-color: #A84242 !important;
+            border-color: #A84242 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container rounded-main" style="max-width: 100%;">
+        <div class="row">
+            <div class="col-md-6 text-left">
+                <div class="row">
+                    <div class="col-md-2">
+                        <a href="{% url 'index_admin' %}" class="btn btn-primary btn-lg" style="white-space: nowrap;">На главную</a>
+                    </div>
+                    <div class="col-md-2" style="margin-left: 20%;">
+                        <a href="{% url 'accounts_admin' %}" class="btn btn-primary btn-lg">Аккаунты</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'groups_admin' %}" class="btn btn-primary btn-lg">Направления</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 text-right">
+                <div class="row">
+                    <div class="col-md-2" style="margin-left: 12%;">
+                        <a href="{% url 'archive' %}" class="btn btn-primary btn-lg">Архив</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'archiving' %}" class="btn btn-primary btn-lg" style="white-space: nowrap;">Архивация данных</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'feedback' %}" class="btn btn-primary btn-lg" style="white-space: nowrap;">Сообщить об ошибке</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center;">
+        <img src="{% static 'adminpages/icons/chelgu-logo.png' %}" alt="logo" style="max-width: 130px; max-height: 130px; margin-top: -4%;">
+    </div>
+
+    <div class="container mt-5" style="text-align: center; max-width: 80%">
+        <div id="addContainer" class="container rounded" style="max-width: 80%;">
+            <form id="createAccountBtn" method="post" action="{% url 'create_account' %}">
+                {% csrf_token %}
+                
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="access_level">Уровень доступа</label>
+                        <select class="form-control" id="access_level" name="access_level">
+                            <option value="1">Преподаватель</option>
+                            <option value="2">Староста</option>
+                            <option value="3">Админ</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="group_create">Направление</label>
+                        <select class="form-control" id="group_create" name="group" disabled>
+                            <option value="Null">Нет группы</option>
+                            {% for group in groups %}
+                                <option value="{{ group.id_groups_table }}">{{ group.groups_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="subgroup_create">Группа</label>
+                        <select class="form-control" id="subgroup_create" name="subgroup" disabled>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="first_name">Имя</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="last_name">Фамилия</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="patronymic">Отчество</label>
+                        <input type="text" class="form-control" id="patronymic" name="patronymic">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="username">Логин</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="password">Пароль</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="email">Электронная почта</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Создать</button>
+            </form>
+        </div>
+        
+        
+
+        
+        <div id="searchContainer" class="container rounded mt-5" style="max-width: 100%;">
+            <h2 class="text-center">Поиск аккаунтов</h2>
+        
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="access_level_search">Уровень доступа</label>
+                    <select class="form-control" id="access_level_search" name="access_level_search">
+                        <option value="1">Преподаватель</option>
+                        <option value="2">Староста</option>
+                        <option value="3">Админ</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="group_create_search">Направление</label>
+                    <select class="form-control" id="group_create_search" name="group_search" disabled>
+                        <option value="Null">Нет группы</option>
+                        {% for group in groups %}
+                            <option value="{{ group.id_groups_table }}">{{ group.groups_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="subgroup_create_search">Группа</label>
+                    <select class="form-control" id="subgroup_create_search" name="subgroup_search" disabled>
+                    </select>
+                </div>
+            </div>
+        
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="first_name_search">Имя</label>
+                    <input type="text" class="form-control" id="first_name_search" name="first_name_search">
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="last_name_search">Фамилия</label>
+                    <input type="text" class="form-control" id="last_name_search" name="last_name_search">
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="patronymic_search">Отчество</label>
+                    <input type="text" class="form-control" id="patronymic_search" name="patronymic_search">
+                </div>
+            </div>
+        
+            <div class="form-row justify-content-center">
+                <div class="form-group col-md-4">
+                    <label for="username_search">Логин</label>
+                    <input type="text" class="form-control" id="username_search" name="username_search">
+                </div>
+            </div>
+        
+            <button type="submit" class="btn btn-primary" onclick="handleSearchButtonClick()">
+                <img src="{% static 'adminpages/icons/search.svg' %}" alt="logo" style="max-width: 30px; max-height: 30px; margin-top: -4%;"> Найти
+            </button>
+        
+            <div class="mt-2" style="max-height: 250px; overflow-y: auto;">
+                <table class="table" style="width: 100%; background-color: white">
+                    <thead>
+                        <tr>
+                            <th>Логин</th>
+                            <th>Имя</th>
+                            <th>Фамилия</th>
+                            <th>Отчество</th>
+                            <th>Направление</th>
+                            <th>Группа</th>
+                            <th>Управление</th>
+                        </tr>
+                    </thead>
+                    <tbody id="searchResults">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+
+    </div> 
+    
+    <div aria-live="polite" aria-atomic="true" style="position: fixed; bottom: 10px; right: 10px;">
+        <div id="errorToast" class="toast" data-delay="5000">
+            <div class="toast-header">
+                <strong class="mr-auto text-danger">Сообщение</strong>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="toast-body" id="errorMessage">
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function showErrorToast(message) {
+            $('#errorMessage').text(message);
+            $('#errorToast').toast('show');
+        }
+
+        $(document).ready(function() {
+            $("#access_level").change(function() {
+                var access_level = $(this).val();
+                if (access_level == 2) {
+                    $("#group_create").prop('disabled', false);
+                } else {
+                    $("#group_create").prop('disabled', true);
+                    $("#subgroup_create").prop('disabled', true);
+                    $("#subgroup_create").html("<option value=''>---------</option>");
+                }
+            });
+    
+            $("#group_create").change(function() {
+                var group_id = $(this).val();
+                if(group_id && group_id != 'Null') {
+                    $.ajax({
+                        url: "{% url 'ajax_load_subgroups' %}",
+                        data: {
+                            'group_table_id': group_id
+                        },
+                        success: function(data) {
+                            var options = '<option value="">---------</option>';
+                            for (var i = 0; i < data.length; i++) {
+                                options += '<option value="' + data[i].id_subgroups_table + '">' + data[i].subgroup_name + '</option>';
+                            }
+                            $("#subgroup_create").html(options);
+                            $("#subgroup_create").prop('disabled', false);
+                        }
+                    });
+                } else {
+                    $("#subgroup_create").html("<option value=''>---------</option>");
+                    $("#subgroup_create").prop('disabled', true);
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            $("#access_level_search").change(function() {
+                var access_level = $(this).val();
+                if (access_level == 2) {
+                    $("#group_create_search").prop('disabled', false);
+                } else {
+                    $("#group_create_search").prop('disabled', true);
+                    $("#subgroup_create_search").prop('disabled', true);
+                    $("#subgroup_create_search").html("<option value=''>---------</option>");
+                }
+            });
+    
+            $("#group_create_search").change(function() {
+                var group_id = $(this).val();
+                if(group_id && group_id != 'Null') {
+                    $.ajax({
+                        url: "{% url 'ajax_load_subgroups' %}",
+                        data: {
+                            'group_table_id': group_id
+                        },
+                        success: function(data) {
+                            var options = '<option value="">---------</option>';
+                            for (var i = 0; i < data.length; i++) {
+                                options += '<option value="' + data[i].id_subgroups_table + '">' + data[i].subgroup_name + '</option>';
+                            }
+                            $("#subgroup_create_search").html(options);
+                            $("#subgroup_create_search").prop('disabled', false);
+                        }
+                    });
+                } else {
+                    $("#subgroup_create").html("<option value=''>---------</option>");
+                    $("#subgroup_create").prop('disabled', true);
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            $('#createAccountBtn').on('submit', function(e) {
+                e.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'create_account' %}",
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            showErrorToast('Аккаунт создан');
+                        } else {
+                            showErrorToast('Ошибка при создании аккаунта: ' + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            });
+        });
+
+
+        function deleteAccount(accountId) {
+    if (confirm("Вы уверены, что хотите удалить этот аккаунт?")) {
+        $.ajax({
+            url: "{% url 'ajax_delete_account' %}",
+            method: "POST",
+            data: {
+                'account_id': accountId,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    handleSearchButtonClick();
+                } else {
+                    showErrorToast(response.message);
+                }
+            },
+            error: function() {
+                showErrorToast("Ошибка при удалении аккаунта");
+            }
+        });
+    }
+}
+
+function saveAccount(accountId) {
+    var group_id = $("#group_" + accountId).val();
+    var subgroup_id = $("#subgroup_" + accountId).val();
+    var access_level = $("#access_level_search").val();
+    $.ajax({
+        url: "{% url 'ajax_save_account' %}",
+        method: "POST",
+        data: {
+            'account_id': accountId,
+            'group_id': group_id,
+            'subgroup_id': subgroup_id,
+            'access_level': access_level,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                showErrorToast("Аккаунт успешно обновлен");
+            } else {
+                showErrorToast(response.message);
+            }
+        },
+        error: function() {
+            showErrorToast("Ошибка при сохранении аккаунта");
+        }
+    });
+}
+
+
+function handleSearchButtonClick() {
+    var access_level = $("#access_level_search").val();
+    var username = $("#username_search").val();
+    var first_name = $("#first_name_search").val();
+    var last_name = $("#last_name_search").val();
+    var patronymic = $("#patronymic_search").val();
+    var group_id = $("#group_create_search").val();
+    var subgroup_id = $("#subgroup_create_search").val();
+
+    $.ajax({
+        url: "{% url 'ajax_search_accounts' %}",
+        method: "GET",
+        data: {
+            'access_level': access_level,
+            'username': username,
+            'first_name': first_name,
+            'last_name': last_name,
+            'patronymic': patronymic,
+            'group_id': group_id,
+            'subgroup_id': subgroup_id
+        },
+        success: function(response) {
+            var results = response.results;
+            var tableBody = $("#searchResults");
+            tableBody.empty();
+            for (var i = 0; i < results.length; i++) {
+                var groupOptions = "<option value='Null'>Нет направления</option>";
+                console.log(results);
+                {% for group in groups %}
+                    groupOptions += "<option value='{{ group.id_groups_table }}'" + (results[i].group.id == {{ group.id_groups_table }} ? " selected" : "") + ">{{ group.groups_name }}</option>";
+                {% endfor %}
+
+                var row = "<tr>" +
+                    "<td>" + results[i].username + "</td>" +
+                    "<td>" + results[i].first_name + "</td>" +
+                    "<td>" + results[i].last_name + "</td>" +
+                    "<td>" + results[i].patronymic + "</td>" +
+                    "<td>" +
+                        "<select class='form-control' id='group_" + results[i].id + "' onchange='loadSubgroups(" + results[i].id + ")' " + (access_level == 2 ? "" : "disabled") + ">" +
+                            groupOptions +
+                        "</select>" +
+                    "</td>" +
+                    "<td>" +
+                        "<select class='form-control' id='subgroup_" + results[i].id + "' " + (access_level == 2 ? "" : "disabled") + ">" +
+                            "<option value=''>---------</option>" +
+                        "</select>" +
+                    "</td>" +
+                    "<td>" +
+                        "<button class='btn btn-warning' onclick='saveAccount(" + results[i].id + ")'>Сохранить</button>" +
+                        " <button class='btn btn-danger' onclick='deleteAccount(" + results[i].id + ")'>Удалить</button>" +
+                    "</td>" +
+                "</tr>";
+                tableBody.append(row);
+                if (results[i].group.id !== '0') {
+                    loadSubgroups(results[i].id, results[i].group.id, results[i].subgroup.id);
+                }
+            }
+        },
+        error: function() {
+            showErrorToast("Ошибка при поиске аккаунтов");
+        }
+    });
+}
+
+function loadSubgroups(userId, selectedGroupId, selectedSubgroupId = null) {
+    var groupId = selectedGroupId || $("#group_" + userId).val();
+    if (groupId && groupId !== 'Null') {
+        $.ajax({
+            url: "{% url 'ajax_load_subgroups' %}",
+            data: {
+                'group_table_id': groupId
+            },
+            success: function(data) {
+                var options = '<option value="">---------</option>';
+                for (var i = 0; i < data.length; i++) {
+                    options += '<option value="' + data[i].id_subgroups_table + '"' + (selectedSubgroupId == data[i].id_subgroups_table ? ' selected' : '') + '>' + data[i].subgroup_name + '</option>';
+                }
+                $("#subgroup_" + userId).html(options);
+                $("#subgroup_" + userId).prop('disabled', false);
+            }
+        });
+    } else {
+        $("#subgroup_" + userId).html("<option value=''>---------</option>");
+        $("#subgroup_" + userId).prop('disabled', true);
+    }
+}
+    </script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>archiving</title>
+    <link rel="stylesheet" href="{% static 'teacherpages/css/startpage.css' %}">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        label {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .container.rounded {
+            border: 2px solid #8B2222;
+            background-color: #FBE4C5;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .container.rounded-main {
+            border: 2px solid #8B2222;
+            padding: 15px;
+            background-color: #FBE4C5;
+        }
+
+        #searchResultsContainer {
+            max-height: 30px;
+            overflow-y: auto;
+        }
+
+        .btn-primary {
+            background-color: #8B2222 !important;
+            border-color: #8B2222 !important;
+        }
+
+        .btn-primary:not(:disabled):not(.disabled):active,
+        .btn-primary:not(:disabled):not(.disabled).active,
+        .show>.btn-primary.dropdown-toggle {
+            color: #ffffff !important;
+        }
+
+        .btn-primary:hover {
+            background-color: #A84242 !important;
+            border-color: #A84242 !important;
+        }
+
+        .custom-range {
+            pointer-events: none;
+        }
+
+
+        .custom-range::-webkit-slider-thumb {
+            pointer-events: auto;
+            background-color: #FFA07A;
+        }
+
+        .custom-range::-moz-range-thumb {
+            pointer-events: auto;
+            background-color: #FFA07A;
+        }
+
+        .custom-range::-ms-thumb {
+            pointer-events: auto;
+            background-color: #FFA07A;
+        }
+
+        .custom-range::-webkit-slider-runnable-track {
+            background-color: #8B2222;
+        }
+
+        .custom-range::-moz-range-track {
+            background-color: #8B2222;
+        }
+
+        .custom-range::-ms-track {
+            background-color: #8B2222;
+        }
+
+        .custom-range::-webkit-slider-thumb:active {
+            background-color: #FFA07A;
+        }
+
+        .custom-range::-moz-range-thumb:active {
+            background-color: #FFA07A;
+        }
+
+        .custom-range::-ms-thumb:active {
+            background-color: #FFA07A;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container rounded-main" style="max-width: 100%;">
+        <div class="row">
+            <div class="col-md-6 text-left">
+                <div class="row">
+                    <div class="col-md-2">
+                        <a href="{% url 'index_admin' %}" class="btn btn-primary btn-lg" style="white-space: nowrap;">На главную</a>
+                    </div>
+                    <div class="col-md-2" style="margin-left: 20%;">
+                        <a href="{% url 'accounts_admin' %}" class="btn btn-primary btn-lg">Аккаунты</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'groups_admin' %}" class="btn btn-primary btn-lg">Направления</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 text-right">
+                <div class="row">
+                    <div class="col-md-2" style="margin-left: 12%;">
+                        <a href="{% url 'archive' %}" class="btn btn-primary btn-lg">Архив</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'archiving' %}" class="btn btn-primary btn-lg" style="white-space: nowrap;">Архивация данных</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'feedback' %}" class="btn btn-primary btn-lg" style="white-space: nowrap;">Сообщить об ошибке</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center;">
+        <img src="{% static 'adminpages/icons/chelgu-logo.png' %}" alt="logo" style="max-width: 130px; max-height: 130px; margin-top: -4%;">
+    </div>
+
+    <div class="container rounded mt-5">
+        <h1 style="text-align: center">Архивация данных данного семестра</h1>
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col">
+                    <label for="startDate">Текущий семестр:</label>
+                    <select id="semesterSelect" class="form-control">
+                        <option value="I семестр" {% if semester == "I семестр" %} selected {% endif %}>I семестр</option>
+                        <option value="II семестр" {% if semester == "II семестр" %} selected {% endif %}>II семестр</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="startDate">Год, в котором проходил семестр:</label>
+                    <div class="input-group">
+                        <input type="number" id="yearInput" class="form-control" value="{{ year }}" min="0">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                  <label for="startDate">Начальная дата следующего семестра:</label>
+                  <input type="date" id="startDate" class="form-control">
+                </div>
+                <div class="col">
+                  <label for="endDate">Конечная дата следующего семестра:</label>
+                  <input type="date" id="endDate" class="form-control">
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col">
+                    <input type="range" min="0" max="100" value="0" class="custom-range" id="archiveSlider" onchange="checkSliderValue()" onmouseout="resetSlider()">
+                </div>
+              </div>
+              <div class="row mt-3" style="text-align: center">
+                <div class="col">
+                  <div id="result"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000" style="position: fixed; bottom: 10px; right: 10px;">
+        <div class="toast-header">
+            <strong class="mr-auto">Ошибка</strong>
+            <small class="text-muted">Только что</small>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" onclick="window.location.reload()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="toast-body">
+            <span id="toastMessage">Ошибка при сохранении данных.</span>
+        </div>
+    </div>
+
+    <script>
+
+        function checkSliderValue() {
+            var slider = document.getElementById("archiveSlider");
+            if (parseInt(slider.value) === parseInt(slider.max)) {calculateWorkWeeks();}
+        }
+
+        function resetSlider() {
+            var slider = document.getElementById("archiveSlider");
+            var minValue = parseInt(slider.min);
+            var currentValue = parseInt(slider.value);
+            var step = parseInt(slider.step) || 1;
+
+            if (currentValue !== minValue) {
+                if (currentValue < minValue) {
+                    currentValue = minValue;
+                } else {
+                    currentValue -= step;
+                }
+
+                slider.value = currentValue;
+                setTimeout(resetSlider, 9);
+            }
+        }
+
+        function calculateWorkWeeks() {
+            const startDateInput = document.getElementById('startDate').value;
+            const endDateInput = document.getElementById('endDate').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = "";
+
+            if (startDateInput === "" || endDateInput === "") {
+                resultDiv.innerHTML = "<span style='font-size: 25px; font-weight: bold; color: #8B2222;'>Пожалуйста, заполните оба поля</span>";
+                return;
+            }
+
+            const startDate = new Date(startDateInput);
+            const endDate = new Date(endDateInput);
+
+            if (endDate < startDate) {
+                resultDiv.innerHTML = "<span style='font-size: 25px; font-weight: bold; color: #8B2222;'>Конечная дата не может быть меньше начальной</span>";
+                return;
+            }
+
+            let currentDate = new Date(startDate);
+            let result = [];
+
+            while (currentDate <= endDate) {
+                if (currentDate.getDay() === 6) {
+                    const formattedDate = formatDate(currentDate);
+                    result.push(`${formattedDate} - ${formattedDate}`);
+                    currentDate.setDate(currentDate.getDate() + 2);
+                } else {
+                    const endOfWeek = new Date(currentDate);
+                    endOfWeek.setDate(endOfWeek.getDate() + (6 - currentDate.getDay()));
+                    if (endOfWeek > endDate) {
+                        endOfWeek.setDate(endDate.getDate());
+                    }
+                    const formattedStartDate = formatDate(currentDate);
+                    const formattedEndDate = formatDate(endOfWeek);
+                    result.push(`${formattedStartDate} - ${formattedEndDate}`);
+                    currentDate.setDate(currentDate.getDate() + (8 - currentDate.getDay()));
+                }
+            }
+            var semester = document.getElementById("semesterSelect").value;
+            var year = document.getElementById("yearInput").value;
+            if (year === '') {
+                resultDiv.innerHTML = "<span style='font-size: 25px; font-weight: bold; color: #8B2222;'>Укажите год занятий</span>";
+                return;
+            }
+            $.ajax({
+                type: "POST",
+                url: "archivingPost/",
+                data: {
+                    'weeksNew': JSON.stringify(result),
+                    'year': year,
+                    'semester': semester,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        window.location.href = "/administrator/?success=true";
+                    } else {
+                        
+                        $('#toastMessage').text("Ошибка при сохранении данных: " + response.message);
+                        $('#errorToast').toast('show');
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 3000);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+
+        function formatDate(date) {
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            return `${day}.${month}`;
+        }
+    </script>
+</body>
+</html>

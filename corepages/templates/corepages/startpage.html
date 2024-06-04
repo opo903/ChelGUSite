@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Авторизация</title>
+    <link rel="stylesheet" href="{% static 'corepages/css/startpage.css' %}">
+    <link rel="stylesheet" href="{% static 'corepages/js/startpage.js' %}">
+    <style>
+        .container.rounded {
+            border: 2px solid #8B2222;
+            background-color: #FBE4C5;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .container.rounded-main {
+            border: 2px solid #8B2222;
+            padding: 15px;
+            background-color: #FBE4C5;
+        }
+
+        #searchResultsContainer {
+            max-height: 30px;
+            overflow-y: auto;
+        }
+
+        .btn-primary {
+            background-color: #8B2222 !important;
+            border-color: #8B2222 !important;
+        }
+
+        .btn-primary:not(:disabled):not(.disabled):active,
+        .btn-primary:not(:disabled):not(.disabled).active,
+        .show>.btn-primary.dropdown-toggle {
+            color: #ffffff !important;
+        }
+
+        .btn-primary:hover {
+            background-color: #A84242 !important;
+            border-color: #A84242 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container rounded-main" style="max-width: 100%;">
+        <div class="row" >
+            <div class="col-md-7">
+                <h2>Информационная система учета посещаемости</h2>
+            </div>
+            <div class="col-md-2" style="white-space: nowrap;">
+                <h2>студентов математического факультета ЧелГУ</h2>
+            </div>
+        </div>
+        
+    </div>
+    
+    <div style="text-align: center;">
+        <img src="{% static 'corepages/icons/chelgu-logo.png' %}" alt="logo" style="max-width: 130px; max-height: 130px; margin-top: -4%;">
+    </div>
+
+
+    <div class="container mt-5" style="text-align: center; max-width: 100%;">
+        <div class="container rounded" style="width: 500px !important;">
+            <h2>Авторизация</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">
+                    <object type="image/svg+xml" data="{% static 'corepages/icons/conference-room.svg' %}" style="width: 35px; height: 35px; display: inline-block; vertical-align: middle;"></object>
+                    <span style="vertical-align: middle;">Login</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

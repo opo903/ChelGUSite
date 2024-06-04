@@ -1,0 +1,74 @@
+@import url('https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
+body {font-family: Arial, sans-serif;background-color: #f8f9fa;}
+.container {display: flex;justify-content: left; width: 100%; max-width: none;}
+.btn-primary {background-color: #007bff;border-color: #007bff;}
+.btn-primary:hover {background-color: #0056b3;border-color: #0056b3;}
+.form-control {width: 100%;margin-bottom: 10px;}
+h2 {color: #333;}
+.table-wrapper {width: 100%;overflow-x: auto;}
+.table-bordered {width: 100%;}
+.table-bordered th,.table-bordered td {text-align: center;}
+.table-bordered th {vertical-align: middle;}
+.comment-indicator {
+    position: relative;
+}
+.comment-indicator::after {
+    content: "";
+    position: absolute;
+    bottom: -2%;
+    left: -2%;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-top: 5px solid transparent;
+    border-right: 5px solid rgb(49, 42, 150);
+    border-bottom: 5px solid rgb(19, 35, 128);
+}
+#colorPickerContainer #selectedHexColor,
+#colorPickerContainer #selectedRgbColor {
+    padding: 0.75em;
+    border-radius: 50%;
+    font-size: x-small;
+    margin: 0 0.5em;
+    border: 0.5px solid #9d9999;
+    border-style: dashed;
+}
+div.hexColorPicker {
+    width:fit-content;
+    margin: 0.75em auto;
+}
+span.condensed-line {
+    text-align:center;
+    display:block;
+    font-size:20px;
+    line-height: 14.65px;
+    font-stretch: ultra-condensed;
+}
+span.colorHex {cursor:pointer;}
+span.colorHex.color-selected {-webkit-text-stroke: 1.15px black !important;}
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.form-control {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0;
+    width: 6rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.rgb-form-control {width:3rem;}
+.stretched-input {width: 100%;}
+td[data-color] {
+    background-color: var(--default-color);
+    color: rgb(0, 0, 0);
+    text-align: center;
+}

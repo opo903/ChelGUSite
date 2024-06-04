@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>archive</title>
+    <link rel="stylesheet" href="{% static 'teacherpages/css/startpage.css' %}">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .container.rounded {
+            border: 2px solid #8B2222;
+            background-color: #FBE4C5;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .container.rounded-main {
+            border: 2px solid #8B2222;
+            padding: 15px;
+            background-color: #FBE4C5;
+        }
+
+        #searchResultsContainer {
+            max-height: 30px;
+            overflow-y: auto;
+        }
+
+        .btn-primary {
+            background-color: #8B2222 !important;
+            border-color: #8B2222 !important;
+        }
+
+        .btn-primary:not(:disabled):not(.disabled):active,
+        .btn-primary:not(:disabled):not(.disabled).active,
+        .show>.btn-primary.dropdown-toggle {
+            color: #ffffff !important;
+        }
+
+        .btn-primary:hover {
+            background-color: #A84242 !important;
+            border-color: #A84242 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container rounded-main" style="max-width: 100%;">
+        <div class="row">
+            <div class="col-md-6 text-left">
+                <div class="row">
+                    <div class="col-md-2">
+                        <a href="{% url 'index_admin' %}" class="btn btn-primary btn-lg" style="white-space: nowrap;">На главную</a>
+                    </div>
+                    <div class="col-md-2" style="margin-left: 20%;">
+                        <a href="{% url 'accounts_admin' %}" class="btn btn-primary btn-lg">Аккаунты</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'groups_admin' %}" class="btn btn-primary btn-lg">Направления</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 text-right">
+                <div class="row">
+                    <div class="col-md-2" style="margin-left: 12%;">
+                        <a href="{% url 'archive' %}" class="btn btn-primary btn-lg">Архив</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'archiving' %}" class="btn btn-primary btn-lg" style="white-space: nowrap;">Архивация данных</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'feedback' %}" class="btn btn-primary btn-lg" style="white-space: nowrap;">Сообщить об ошибке</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center;">
+        <img src="{% static 'adminpages/icons/chelgu-logo.png' %}" alt="logo" style="max-width: 130px; max-height: 130px; margin-top: -4%;">
+    </div>
+
+    <div class="container rounded mt-5">
+        <h1 style="text-align: center">Архив данных</h1>
+        <div class="container mt-5">
+            {% for year in academic_years %}
+            <div class="card my-3">
+                <div class="card-body">
+                    <form method="get" action="">
+                        {% csrf_token %}
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h3 class="card-title" style="font-size: 30px; font-weight: bold; margin-top: 2%;" >{{ year }}</h3>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="{% url 'archive_subgroups' year=year semester='I семестр' %}" class="btn btn-primary btn-lg">I семестр</a>
+                                <a href="{% url 'archive_subgroups' year=year semester='II семестр' %}" class="btn btn-primary btn-lg">II семестр</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
